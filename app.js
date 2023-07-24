@@ -2,9 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+const limiter = require('./utils/rateLimiter.js');
 const { errorLogger, requestLogger } = require('./middlewares/logger.js');
 const routes = require('./routes/index.js');
 const { createUser, login, logout } = require('./controllers/user.js');
@@ -12,13 +12,7 @@ const { newUserDataValidation, userCredentialsValidation } = require('./utils/us
 const errorHandler = require('./errors/errorHandler.js');
 const auth = require('./middlewares/auth.js');
 
-const { PORT = 3000, MONGODB_URL = 'mongodb://127.0.0.1:27017/movieservicedb' } = process.env;
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standartHeaders: true,
-  legacyHeaders: false,
-});
+const { PORT = 3000, MONGODB_URL = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
 
 const app = express();
 
