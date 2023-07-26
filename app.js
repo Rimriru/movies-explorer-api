@@ -22,10 +22,10 @@ mongoose.connect(MONGODB_URL)
   });
 
 app.use(helmet());
-app.use(limiter);
 app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
+app.use(limiter);
 
 // роуты идентификации, аутентификации и авторизации
 app.post('/signup', newUserDataValidation, createUser);
