@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const limiter = require('./utils/rateLimiter.js');
@@ -21,9 +22,15 @@ mongoose.connect(MONGODB_URL)
     console.log(`Подключён к базе данных по адресу ${MONGODB_URL}`);
   });
 
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+};
+
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors(corsOptions));
 app.use(requestLogger);
 app.use(limiter);
 
