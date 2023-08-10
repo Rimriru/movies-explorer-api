@@ -23,7 +23,7 @@ mongoose.connect(MONGODB_URL)
   });
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: 'https://movies.explorer.student.nomoredomains.xyz/',
   credentials: true,
 };
 
