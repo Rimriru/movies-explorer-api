@@ -13,7 +13,7 @@ const { newUserDataValidation, userCredentialsValidation } = require('./utils/us
 const errorHandler = require('./errors/errorHandler.js');
 const auth = require('./middlewares/auth.js');
 
-const { PORT = 3000, MONGODB_URL = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
+const { PORT = 4000, MONGODB_URL = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
 
 const app = express();
 
