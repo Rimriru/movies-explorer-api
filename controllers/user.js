@@ -7,6 +7,7 @@ const ValidationError = require('../errors/ValidationError.js');
 const ConflictError = require('../errors/ConflictError.js');
 const UnauthorizedError = require('../errors/UnauthorizedError.js');
 const {
+  userRegisterErrorMessage,
   notFoundErrorMessage,
   notValidErrorMessage,
   conflictErrorMessage,
@@ -29,7 +30,7 @@ const createUser = (req, res, next) => {
       })
       .catch((err) => {
         if (err instanceof mongoose.Error.ValidationError) {
-          next(new ValidationError(notValidErrorMessage));
+          next(new ValidationError(userRegisterErrorMessage));
         } else if (err.code === 11000) {
           next(new ConflictError(conflictErrorMessage));
         } else {
@@ -45,18 +46,22 @@ const login = (req, res, next) => {
     .orFail(new UnauthorizedError(unauthorizedErrorMessage))
     .then((user) => {
       bcrypt.compare(password, user.password)
-        .then(() => {
-          const token = jwt.sign(
-            { _id: user._id },
-            `${process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'secret-for-developement'}`,
-            { expiresIn: '7d' },
-          );
-          res.cookie('jwt', token, {
-            maxAge: 3600000 * 24 * 7,
-            httpOnly: true,
-            sameSite: true,
-          });
-          res.send({ message: 'Вы успешно залогинились!' });
+        .then((result) => {
+          if (result) {
+            const token = jwt.sign(
+              { _id: user._id },
+              `${process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'secret-for-developement'}`,
+              { expiresIn: '7d' },
+            );
+            res.cookie('jwt', token, {
+              maxAge: 3600000 * 24 * 7,
+              httpOnly: true,
+              sameSite: true,
+            });
+            res.status(200).send({ message: 'Вы успешно залогинились!' });
+          } else {
+            next(new UnauthorizedError(unauthorizedErrorMessage));
+          }
         })
         .catch(next);
     })
@@ -77,7 +82,7 @@ const getUserInfo = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
     .orFail(new NotFoundError(notFoundErrorMessage))
-    .then((user) => res.send(user))
+    .then((user) => res.status(200).send(user))
     .catch(next);
 };
 
@@ -93,6 +98,8 @@ const updateUserInfo = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(new ValidationError(notValidErrorMessage));
+      } else if (err.code === 11000) {
+        next(new ConflictError(conflictErrorMessage));
       } else {
         next(err);
       }
